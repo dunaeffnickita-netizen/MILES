@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fb1818">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MILES — одежда</title>
+<style>
+:root{
+  --bg:#fff;
+  --fg:#0a0a0a;
+  --mute:#737373;
+  --border:#e5e5e5;
+  --red:#fb1818;
+  --card:#f3f2f2;
+  --input-bg:#fff;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a0a0a;
+    --fg:#fff;
+    --mute:#a3a3a3;
+    --border:#262626;
+    --card:#171717;
+    --input-bg:#141414;
+  }
+  :root:not([data-theme="light"]) header .logo img,
+  :root:not([data-theme="light"]) .card .img img,
+  :root:not([data-theme="light"]) .product-media img{
+    filter:brightness(0) invert(1);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a0a0a;
+  --fg:#fff;
+  --mute:#a3a3a3;
+  --border:#262626;
+  --card:#171717;
+  --input-bg:#141414;
+}
+:root[data-theme="dark"] header .logo img,
+:root[data-theme="dark"] .card .img img,
+:root[data-theme="dark"] .product-media img{
+  filter:brightness(0) invert(1);
+}
+
+html{scroll-padding-top:env(safe-area-inset-top,0px);overflow-x:hidden;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box;margin:0}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:"Helvetica Neue",Arial,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  line-height:1.5;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+  transition:background .2s ease,color .2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+body.menu-open{overflow:hidden}
+a,button,input,textarea,select{color:inherit;font-family:inherit}
+a,button,[role="button"]{touch-action:manipulation}
+a{text-decoration:none}
+
+/* Верхняя бегущая строка (#fb1818) */
+.marquee{
+  background:#fb1818;
+  color:#fff;
+  overflow:hidden;
+  white-space:nowrap;
+  width:100%;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  line-height:1;
+  padding:calc(11px + env(safe-area-inset-top,0px)) 0 11px;
+}
+.marquee-track{display:inline-flex;align-items:center;width:max-content;animation:marquee 28s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-group{display:inline-flex;align-items:center}
+.marquee-group span{padding:0 28px}
+.marquee-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.55);display:inline-block;flex-shrink:0}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.wrap{max-width:1200px;width:100%;margin:0 auto;padding:0 max(24px,env(safe-area-inset-left,0px))}
+main.site-main{flex:1;display:flex;flex-direction:column;position:relative;z-index:1}
+
+/* Шапка */
+header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:24px 0;position:relative;z-index:20}
+.header-left{justify-self:start;display:flex;align-items:center}
+.logo{justify-self:center;display:inline-flex;align-items:center}
+.logo img{height:22px;display:block}
+.header-right{justify-self:end;display:flex;align-items:center;gap:18px}
+.icon-btn{position:relative;background:none;border:0;padding:4px;min-width:36px;min-height:36px;color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .2s}
+.icon-btn:hover{color:var(--red)}
+.menu-btn{margin-left:-6px}
+.cart-badge{
+  position:absolute;
+  top:0;
+  right:-3px;
+  min-width:16px;
+  height:16px;
+  padding:0 4px;
+  border-radius:999px;
+  background:#fb1818;
+  color:#fff;
+  font-size:10px;
+  font-weight:700;
+  line-height:16px;
+  text-align:center;
+  display:none;
+  pointer-events:none;
+}
+.cart-badge.is-visible{display:block}
+
+/* Иконки темы */
+.theme-toggle .icon-sun{display:none}
+.theme-toggle .icon-moon{display:block}
+:root[data-theme="dark"] .theme-toggle .icon-sun{display:block}
+:root[data-theme="dark"] .theme-toggle .icon-moon{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun{display:block}
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon{display:none}
+}
+
+/* Левое выдвижное меню */
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s ease;z-index:99}
+.drawer-backdrop.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(320px,86vw);background:var(--bg);color:var(--fg);z-index:100;transform:translateX(-100%);pointer-events:none;transition:transform .28s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(20px + env(safe-area-inset-top,0px)) 28px calc(28px + env(safe-area-inset-bottom,0px));box-shadow:8px 0 32px rgba(0,0,0,.18)}
+.drawer.is-open{transform:translateX(0);pointer-events:auto}
+.drawer-top{display:flex;justify-content:flex-end;margin-bottom:20px}
+.drawer-close{background:none;border:0;padding:6px;min-width:36px;min-height:36px;color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .2s}
+.drawer-close:hover{color:var(--red)}
+.drawer-nav{display:flex;flex-direction:column;gap:18px;font-size:13px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;line-height:1.35}
+.drawer-nav a{color:var(--fg);padding:4px 0;transition:color .2s}
+.drawer-nav a.is-active{color:var(--mute)}
+.drawer-nav a:hover{color:var(--red)}
+.drawer-socials{margin-top:auto;padding-top:32px;display:flex;gap:12px}
+.drawer-socials a{width:36px;height:36px;border-radius:50%;background:var(--fg);color:var(--bg);display:inline-flex;align-items:center;justify-content:center;transition:background .2s,color .2s}
+.drawer-socials a:hover{background:var(--red);color:#fff}
+
+/* Страницы (SPA роутинг) */
+.page{display:none;padding:24px 0 96px}
+.page.is-active{display:block}
+#page-home.page{padding:0}
+.page-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.page-title{font-size:14px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.page-sub{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+
+/* ГЛАВНАЯ: Спортивная анимация + слоган + кнопка по центру экрана */
+.hero-video-wrap{
+  position:relative;
+  width:100%;
+  min-height:calc(100vh - 108px);
+  min-height:calc(100svh - 108px);
+  background:#0a0a0a;
+  color:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-canvas-el{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  pointer-events:none;
+  z-index:1;
+}
+.hero-scrim{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center,rgba(10,10,10,.58) 0%,rgba(10,10,10,.76) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+.hero-content{
+  position:relative;
+  z-index:3;
+  width:100%;
+  max-width:960px;
+  margin:0 auto;
+  padding:48px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:20px;
+}
+.hero-kicker{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#fb1818;
+}
+.hero-slogan{
+  font-size:clamp(34px,7.5vw,96px);
+  line-height:.94;
+  letter-spacing:-.03em;
+  font-weight:800;
+  text-transform:uppercase;
+  max-width:920px;
+  color:#fff;
+}
+.hero-sub{
+  font-size:16px;
+  color:rgba(255,255,255,.82);
+  max-width:520px;
+}
+.hero-cta{
+  margin-top:8px;
+  position:relative;
+  z-index:4;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  background:#fb1818;
+  color:#fff;
+  padding:18px 36px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background .2s,color .2s,transform .2s;
+}
+.hero-cta:hover{background:#fff;color:#0a0a0a;transform:translateY(-2px)}
+
+/* Редакционный макет (Доставка и О бренде) */
+.editorial{max-width:680px;margin:16px auto 0}
+.editorial-wide{max-width:860px;margin:16px auto 0}
+.ed-kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:14px;font-weight:600}
+.ed-title{font-size:clamp(28px,5vw,50px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin-bottom:16px;overflow-wrap:break-word}
+.ed-lead{font-size:14px;color:var(--mute);line-height:1.65;margin-bottom:36px}
+.ed-block{border-top:1px solid var(--border);padding:28px 0}
+.ed-num{font-size:11px;letter-spacing:.08em;color:var(--mute);margin-bottom:10px;font-weight:600}
+.ed-block h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin-bottom:12px;text-transform:none}
+.ed-block h3{font-size:14px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin:20px 0 8px}
+.ed-block p{font-size:14px;line-height:1.65;color:var(--mute);margin-bottom:10px}
+.ed-block p:last-child{margin-bottom:0}
+.ed-block p strong,.ed-block li strong{color:var(--fg);font-weight:600}
+.ed-link{color:var(--red);font-weight:500}
+.ed-link:hover{text-decoration:underline}
+
+/* Элементы внутри "О бренде" */
+.brand-quote{margin:18px 0;padding:16px 18px;border-left:2px solid var(--red);background:var(--card);font-size:14px;line-height:1.55;color:var(--fg);font-weight:600;letter-spacing:.02em}
+.brand-quote span{display:block;margin-top:4px;font-weight:400;color:var(--mute);font-size:13px}
+.brand-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
+.brand-card{border:1px solid var(--border);padding:18px;background:var(--bg)}
+.brand-card h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;color:var(--fg)}
+.brand-card p{font-size:13px;line-height:1.55;color:var(--mute);margin:0}
+.brand-list{list-style:none;padding:0;margin:14px 0;display:flex;flex-direction:column;gap:8px}
+.brand-list li{position:relative;padding-left:16px;font-size:14px;line-height:1.55;color:var(--mute)}
+.brand-list li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--red)}
+.palette-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:18px 0}
+.swatch-card{border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.swatch-color{height:58px;width:100%}
+.swatch-body{padding:16px}
+.swatch-meta{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;color:var(--fg)}
+.swatch-sub{font-size:11px;color:var(--red);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.swatch-body p{font-size:13px;line-height:1.55;color:var(--mute);margin:0}
+.ratio-bar{display:flex;height:14px;width:100%;overflow:hidden;border:1px solid var(--border);margin:14px 0 10px}
+.ratio-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+
+/* Сетка одежды */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.filter-btn{background:none;border:1px solid var(--border);color:var(--fg);padding:9px 16px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.filter-btn:hover,.filter-btn.is-active{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 20px}
+.card{display:flex;flex-direction:column;cursor:pointer}
+.card .img{aspect-ratio:3/4;background:var(--card);display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative;overflow:hidden;transition:opacity .2s}
+.card:hover .img{opacity:.92}
+.card .img img{width:44px;opacity:.9}
+.card .tag{position:absolute;top:12px;left:12px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--red);font-weight:600}
+.card .sizes{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:6px;justify-content:center;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+.card:hover .sizes,.card:focus-within .sizes{opacity:1;transform:translateY(0)}
+.size-chip{background:var(--bg);color:var(--fg);border:1px solid var(--border);font-size:11px;padding:6px 9px;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.size-chip:hover,.size-chip.is-selected{background:var(--red);color:#fff;border-color:var(--red)}
+.card div.row{display:flex;justify-content:space-between;gap:8px;font-size:15px;margin-bottom:10px}
+.card .row span:last-child{color:var(--mute);white-space:nowrap}
+.add-btn{width:100%;min-height:42px;background:none;border:1px solid var(--border);color:var(--fg);padding:10px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.add-btn:hover{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.add-btn.added{background:#fb1818;color:#fff;border-color:#fb1818}
+
+/* На всех сенсорных экранах (телефоны, iPad, планшеты) размеры видны всегда */
+@media (hover:none){
+  .card .sizes{opacity:1;transform:none;position:static;flex-wrap:wrap;gap:5px;margin:8px 0 4px;justify-content:flex-start}
+}
+
+/* Страница карточки товара */
+.back-link{display:inline-flex;align-items:center;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:24px;min-height:36px;cursor:pointer;background:none;border:0;padding:0}
+.back-link:hover{color:var(--fg)}
+.product-layout{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:start}
+.product-media{aspect-ratio:3/4;background:var(--card);display:flex;align-items:center;justify-content:center;position:relative}
+.product-media img{width:84px;opacity:.92}
+.product-media .tag{position:absolute;top:18px;left:18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}
+.product-info{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.product-kicker{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.product-title{font-size:clamp(28px,4vw,42px);line-height:1.08;letter-spacing:-.02em;font-weight:800}
+.product-price{font-size:22px;font-weight:600}
+.product-desc{font-size:15px;line-height:1.65;color:var(--mute)}
+.product-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin-bottom:8px;font-weight:600}
+.product-sizes{display:flex;gap:10px;flex-wrap:wrap}
+.product-size-btn{min-width:52px;height:44px;border:1px solid var(--border);background:none;color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;text-transform:uppercase;transition:all .15s}
+.product-size-btn:hover{border-color:var(--fg)}
+.product-size-btn.is-selected{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.product-specs{border-top:1px solid var(--border);padding-top:18px;margin-top:8px;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--mute)}
+
+/* Раздел GIFT CARDS */
+.gift-wrap{max-width:1080px;margin:12px auto 0}
+.gift-kicker{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:10px}
+.gift-heading{font-size:clamp(36px,6.5vw,76px);line-height:.95;letter-spacing:-.03em;font-weight:800;text-transform:uppercase;margin-bottom:32px}
+.gift-layout{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;margin-bottom:56px}
+.gift-stage{background:var(--card);padding:48px 36px;display:flex;align-items:center;justify-content:center;min-height:360px}
+.gift-card-visual{
+  width:100%;
+  max-width:420px;
+  aspect-ratio:1.62/1;
+  background:#111;
+  color:#fff;
+  padding:26px 28px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transform:rotate(-3.5deg);
+  box-shadow:0 24px 48px rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.08);
+  transition:transform .25s ease;
+}
+.gift-stage:hover .gift-card-visual{transform:rotate(-1.5deg)}
+.gift-card-top{display:flex;justify-content:space-between;align-items:flex-start}
+.gift-card-top img{height:18px;filter:brightness(0) invert(1)}
+.gift-card-top span{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#fb1818;font-weight:600}
+.gift-card-mid{font-size:clamp(20px,2.8vw,30px);line-height:.98;font-weight:800;letter-spacing:-.02em;text-transform:uppercase;color:#fb1818;margin:12px 0}
+.gift-card-bottom{border-top:1px solid rgba(255,255,255,.22);padding-top:12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.gift-card-bottom strong{font-size:15px;letter-spacing:0;color:#fb1818;white-space:nowrap}
+
+.gift-panel h2{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.02em;margin-bottom:12px;text-transform:none}
+.gift-panel .gift-desc{font-size:14px;color:var(--mute);line-height:1.6;max-width:380px;margin-bottom:26px}
+.gift-nom-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700;margin-bottom:10px}
+.gift-nominals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.gift-nom-btn{
+  border:1px solid var(--border);
+  background:none;
+  color:var(--fg);
+  padding:13px 10px;
+  min-height:44px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  transition:all .18s;
+}
+.gift-nom-btn:hover{border-color:var(--fg)}
+.gift-nom-btn.is-active{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+.gift-buy-btn{
+  width:100%;
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#fb1818;
+  color:#fff;
+  border:0;
+  padding:16px 20px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+  margin-bottom:14px;
+  transition:background .2s,color .2s;
+}
+.gift-buy-btn:hover{background:var(--fg);color:var(--bg)}
+.gift-note{font-size:11px;line-height:1.55;color:var(--mute)}
+.gift-steps{border-top:1px solid var(--border);padding-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.gift-step h3{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.gift-step p{font-size:13px;line-height:1.6;color:var(--mute)}
+
+/* Кнопки и формы */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;background:#fb1818;color:#fff;border:0;padding:15px 28px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .2s,color .2s}
+.btn:hover{background:var(--fg);color:var(--bg)}
+.btn-outline{background:none;color:var(--fg);border:1px solid var(--border)}
+.btn-outline:hover{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.field input,.field textarea,.field select{
+  width:100%;
+  background:var(--input-bg);
+  color:var(--fg);
+  border:1px solid var(--border);
+  border-radius:0;
+  padding:12px 14px;
+  font-size:14px;
+  outline:none;
+  transition:border-color .2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--fg)}
+.prose{max-width:740px;display:flex;flex-direction:column;gap:20px;font-size:15px;line-height:1.65}
+.prose h3{font-size:14px;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
+
+/* Профиль */
+.profile-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:start}
+.panel-box{border:1px solid var(--border);padding:28px}
+.panel-box h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px}
+.order-item{border-top:1px solid var(--border);padding:16px 0}
+.order-item:first-child{border-top:0;padding-top:0}
+.order-head{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px}
+.order-meta{font-size:12px;color:var(--mute);margin-bottom:8px}
+.order-lines{font-size:13px;line-height:1.5}
+.status-msg{font-size:13px;color:var(--red);margin-top:12px;min-height:20px}
+
+/* Корзина */
+.cart-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;align-items:start}
+.cart-list{border-top:1px solid var(--border)}
+.cart-row{display:grid;grid-template-columns:72px 1fr auto;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--border)}
+.cart-thumb{width:72px;height:92px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cart-info h4{font-size:15px;font-weight:500;margin-bottom:4px}
+.cart-info p{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.cart-controls{display:flex;align-items:center;gap:14px}
+.qty-box{display:inline-flex;align-items:center;border:1px solid var(--border)}
+.qty-box button{background:none;border:0;width:36px;height:36px;cursor:pointer;color:var(--fg);font-size:16px}
+.qty-box span{min-width:28px;text-align:center;font-size:13px}
+.remove-btn{background:none;border:0;color:var(--mute);cursor:pointer;font-size:12px;padding:6px 0;text-transform:uppercase;letter-spacing:.05em}
+.remove-btn:hover{color:var(--red)}
+.cart-summary{border:1px solid var(--border);padding:28px}
+.summary-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:12px}
+.summary-row.total{font-size:18px;font-weight:700;padding-top:14px;border-top:1px solid var(--border);margin-top:14px;margin-bottom:20px}
+.free-shipping-bar{font-size:12px;color:var(--mute);margin-bottom:18px;padding:10px 12px;background:var(--card)}
+.empty-state{padding:48px 0;text-align:left}
+.empty-state p{color:var(--mute);margin-bottom:20px;font-size:15px}
+
+/* Подвал (#fb1818) */
+footer{background:#fb1818;color:#fff;padding:56px 0 calc(28px + env(safe-area-inset-bottom,0px));margin-top:auto}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1.2fr 1fr;gap:40px;align-items:start}
+.footer-brand img{height:34px;display:block;margin-bottom:14px;filter:brightness(0) invert(1)}
+.footer-tagline{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.footer-legal{font-size:11px;line-height:1.55;color:rgba(255,255,255,.78);text-transform:uppercase}
+.footer-col h3{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;color:#fff}
+.footer-col ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;font-size:14px}
+.footer-col ul a{color:#fff;transition:opacity .2s}
+.footer-col ul a:hover{opacity:.72}
+.footer-social-boxes{display:flex;gap:10px;margin-bottom:16px}
+.footer-social-boxes a{width:40px;height:40px;background:#fff;color:#fb1818;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;transition:transform .2s,background .2s,color .2s}
+.footer-social-boxes a:hover{background:#0a0a0a;color:#fff;transform:translateY(-2px)}
+.footer-meta-note{font-size:10px;line-height:1.45;color:rgba(255,255,255,.76)}
+.footer-bottom{margin-top:44px;padding-top:20px;border-top:1px solid rgba(255,255,255,.28);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+
+/* Тост */
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:24px;background:var(--fg);color:var(--bg);padding:12px 18px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s;z-index:120}
+.toast.is-show{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .profile-layout,.cart-layout,.brand-grid,.palette-grid,.product-layout,.gift-layout,.gift-steps{grid-template-columns:1fr}
+  .product-layout{gap:24px}
+  .gift-stage{min-height:260px;padding:32px 20px}
+}
+
+/* Мобильная версия (телефоны) */
+@media(max-width:600px){
+  .wrap{padding:0 16px}
+  .marquee{font-size:10px;padding:calc(9px + env(safe-area-inset-top,0px)) 0 9px}
+  .marquee-group span{padding:0 18px}
+
+  header{padding:16px 0}
+  .logo img{height:17px}
+  .header-right{gap:4px}
+  .icon-btn{min-width:34px;min-height:34px}
+
+  .page{padding:16px 0 64px}
+  .page-head{margin-bottom:20px}
+
+  .hero-video-wrap{min-height:calc(100vh - 96px);min-height:calc(100svh - 96px)}
+  .hero-content{padding:36px 16px;gap:16px}
+  .hero-slogan{font-size:clamp(30px,9.5vw,54px)}
+  .hero-sub{font-size:14px;max-width:340px}
+  .hero-cta{width:min(100%,300px);padding:16px 24px}
+
+  /* Каталог на телефоне */
+  .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:20px}
+  .filters::-webkit-scrollbar{display:none}
+  .grid{grid-template-columns:repeat(2,1fr);gap:20px 12px}
+  .card .img{margin-bottom:10px}
+  .card .img img{width:34px}
+  .card .sizes{opacity:1;transform:none;position:static;flex-wrap:wrap;gap:4px;margin:0 0 8px;justify-content:flex-start}
+  .size-chip{padding:5px 8px;font-size:10px}
+  .card div.row{font-size:13px;margin-bottom:8px;flex-direction:column;gap:2px}
+
+  /* Карточка товара */
+  .product-media{aspect-ratio:1/1;max-height:52vh;width:100%}
+  .product-media img{width:64px}
+  .product-info{gap:14px;padding-top:0}
+  .product-price{font-size:20px}
+  .product-desc{font-size:14px}
+
+  /* Gift Cards */
+  .gift-heading{font-size:clamp(32px,10.5vw,52px);margin-bottom:24px}
+  .gift-layout{gap:28px;margin-bottom:40px}
+  .gift-stage{min-height:220px;padding:28px 18px}
+  .gift-card-visual{padding:18px 20px;transform:rotate(-2.5deg)}
+  .gift-card-top img{height:14px}
+  .gift-card-mid{font-size:clamp(18px,5.5vw,26px);margin:8px 0}
+  .gift-card-bottom{font-size:9px;padding-top:10px}
+  .gift-nominals{grid-template-columns:repeat(2,1fr)}
+  .gift-steps{gap:20px;padding-top:24px}
+
+  /* Поля форм без авто-зума на iOS */
+  .field input,.field textarea,.field select{font-size:16px}
+  .panel-box,.cart-summary{padding:20px 16px}
+
+  /* Корзина */
+  .cart-row{grid-template-columns:60px 1fr;gap:12px;padding:14px 0}
+  .cart-thumb{width:60px;height:76px;font-size:10px}
+  .cart-controls{grid-column:1 / -1;justify-content:space-between}
+
+  /* Подвал компактный в 2 колонки навигации */
+  footer{padding:40px 0 calc(24px + env(safe-area-inset-bottom,0px))}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px 20px}
+  .footer-brand{grid-column:1 / -1}
+  .footer-brand img{height:28px}
+  .footer-col:last-child{grid-column:1 / -1}
+  .footer-bottom{margin-top:32px;padding-top:16px}
+
+  .toast{left:16px;right:16px;text-align:center}
+}
+
+@media(prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="marquee" aria-label="Условия доставки">
+  <div class="marquee-track">
+    <div class="marquee-group">
+      <i class="marquee-dot" aria-hidden="true"></i>
+      <span>Доставка по всему миру</span>
+      <i class="marquee-dot" aria-hidden="true"></i>
+      <span>Бесплатная доставка при заказе от 15 000 ₽</span>
+      <i class="marquee-dot" aria-hidden="true"></i>
+      <span>Доставка по всему миру</span>
+      <i class="marquee-dot" aria-hidden="true"></i>
+      <span>Бесплатная доставка при заказе от 15 000 ₽</span>
+    </div>
+    <div class="marquee-group" aria-hidden="true">
+      <i class="marquee-dot"></i>
+      <span>Доставка по всему миру</span>
+      <i class="marquee-dot"></i>
+      <span>Бесплатная доставка при заказе от 15 000 ₽</span>
+      <i class="marquee-dot"></i>
+      <span>Доставка по всему миру</span>
+      <i class="marquee-dot"></i>
+      <span>Бесплатная доставка при заказе от 15 000 ₽</span>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Меню сайта">
+  <div class="drawer-top">
+    <button class="drawer-close" id="menuClose" type="button" aria-label="Закрыть меню">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M4 4L16 16M16 4L4 16"/>
+      </svg>
+    </button>
+  </div>
+  <nav class="drawer-nav" id="drawerNav">
+    <a href="#home" data-route="home">Главная</a>
+    <a href="#catalog" data-route="catalog">Каталог</a>
+    <a href="#about" data-route="about">О бренде</a>
+    <a href="#delivery" data-route="delivery">Доставка и оплата</a>
+    <a href="#returns" data-route="returns">Возврат и обмен</a>
+    <a href="#offer" data-route="offer">Публичная оферта</a>
+    <a href="#privacy" data-route="privacy">Политика конфиденциальности</a>
+    <a href="#gift-cards" data-route="gift-cards">Gift Cards</a>
+  </nav>
+  <div class="drawer-socials">
+    <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+    </a>
+    <a href="https://t.me" target="_blank" rel="noopener" aria-label="Telegram">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21.4 3.6L2.7 10.8c-1.3.5-1.3 1.2-.2 1.6l4.8 1.5 11.1-7c.5-.3 1-.1.6.2l-9 8.1-.3 4.8c.5 0 .7-.2 1-.5l2.4-2.3 5 3.7c.9.5 1.6.2 1.8-.9l3.3-15.4c.3-1.4-.5-2-1.8-1.4z"/>
+      </svg>
+    </a>
+    <a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/>
+      </svg>
+    </a>
+  </div>
+</aside>
+
+<div class="wrap">
+<header>
+  <div class="header-left">
+    <button class="icon-btn menu-btn" id="menuOpen" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="drawer">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M3 6h16M3 11h16M3 16h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <a class="logo" href="#home" data-route="home" aria-label="MILES">
+    <img src="data:image/png;base64,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" alt="MILES">
+  </a>
+
+  <div class="header-right">
+    <a class="icon-btn" href="#profile" data-route="profile" aria-label="Профиль">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"/>
+      </svg>
+    </a>
+    <a class="icon-btn" href="#cart" data-route="cart" aria-label="Корзина">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 8h12l-1 12H7L6 8z"/>
+        <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
+      </svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </a>
+    <button class="icon-btn theme-toggle" id="themeToggle" type="button" aria-label="Сменить тему">
+      <svg class="icon-moon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+      </svg>
+      <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+    </button>
+  </div>
+</header>
+</div>
+
+<main class="site-main">
+  <section class="page is-active" id="page-home">
+    <div class="hero-video-wrap">
+      <canvas class="hero-canvas-el" id="sportCanvas" aria-hidden="true"></canvas>
+      <div class="hero-scrim"></div>
+      <div class="hero-content">
+        <div class="hero-kicker">MILES • DROP 001</div>
+        <h1 class="hero-slogan">THE DISTANCE<br>DEFINES YOU.</h1>
+        <p class="hero-sub">Технологичный минимализм и спортивная эстетика для тех кто идет до конца</p>
+        <a class="hero-cta" href="#catalog" data-route="catalog">
+          <span>Купить Drop 001</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-catalog">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">DROP 001 / Каталог</h1>
+        <span class="page-sub">04 / 24</span>
+      </div>
+      <div class="filters" id="catalogFilters">
+        <button class="filter-btn is-active" type="button" data-cat="all">Все</button>
+        <button class="filter-btn" type="button" data-cat="hoodie">Худи</button>
+        <button class="filter-btn" type="button" data-cat="tee">Футболки</button>
+        <button class="filter-btn" type="button" data-cat="pants">Брюки</button>
+        <button class="filter-btn" type="button" data-cat="outerwear">Куртки</button>
+      </div>
+      <div class="grid" id="catalogGrid"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-product">
+    <div class="wrap" id="productDetailWrap"></div>
+  </section>
+
+  <section class="page" id="page-about">
+    <div class="wrap">
+      <div class="editorial-wide">
+        <div class="ed-kicker">BRAND PLATFORM / RUSSIAN EDITION</div>
+        <h1 class="ed-title">MILES<br>THE DISTANCE DEFINES YOU.</h1>
+        <p class="ed-lead">Философия бренда и визуальная идентичность.</p>
+
+        <div class="ed-block">
+          <div class="ed-num">01 /</div>
+          <h2>Суть и ключевая философия бренда</h2>
+          <div class="brand-quote">
+            THE DISTANCE DEFINES YOU.
+            <span>Дистанция определяет тебя.</span>
+          </div>
+          <p><strong>Miles</strong> — это бренд, основанный на философии пути, несгибаемости и постоянного развития. Это больше, чем одежда или спортивная эстетика. Это отражение мировоззрения людей, которые не боятся трудностей, принимают вызовы и продолжают двигаться вперёд независимо от обстоятельств.</p>
+
+          <h3>Манифест несгибаемости</h3>
+          <p>Miles создан не для тех, кому всё даётся легко, а для тех, кто не сдаётся и готов идти до конца. Бренд отвергает культ показушного успеха, статуса и привилегий. Неважно, откуда ты пришёл, какими ресурсами обладал на старте и сколько у тебя достижений сегодня.</p>
+          <p><strong>Не статус. Не происхождение. Не точка старта.</strong> Важно только то, какой путь ты прошёл и кем стал в процессе.</p>
+
+          <h3>Ценность внутреннего пути</h3>
+          <p>Истинная ценность человека заключается не в его внешнем положении, а в его внутреннем опыте. В том, сколько он преодолел, сколько раз поднимался после падений и насколько далеко смог зайти, несмотря на трудности. Miles воспевает не мгновение победы, а весь путь, который к ней привел.</p>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">02 /</div>
+          <h2>Для кого создан Miles?</h2>
+          <p>Miles объединяет людей с разными жизненными историями, профессиями и амбициями, которых связывает одно — стремление постоянно становиться сильнее.</p>
+          <div class="brand-grid">
+            <div class="brand-card">
+              <h4>Для спортсменов</h4>
+              <p>Для тех, кто понимает цену дисциплины, тренировок, боли и систематической работы над собой. Результат определяется не талантом на старте, а готовностью продолжать, когда становится тяжело.</p>
+            </div>
+            <div class="brand-card">
+              <h4>Для предпринимателей и создателей</h4>
+              <p>Для людей, которые строят бизнес, создают продукты, реализуют идеи и преодолевают неопределённость. Их дистанция измеряется не километрами, а решениями, ответственностью и результатами.</p>
+            </div>
+            <div class="brand-card">
+              <h4>Для мыслителей и людей в развитии</h4>
+              <p>Для тех, кто постоянно учится, исследует, переосмысливает себя и не ограничивает собственные возможности.</p>
+            </div>
+            <div class="brand-card">
+              <h4>Для молодёжи</h4>
+              <p>Ориентир независимости и самоопределения: возможность отказаться от навязанных стандартов, не сравнивать себя с чужими результатами и самому определять своё движение.</p>
+            </div>
+            <div class="brand-card" style="grid-column:1 / -1">
+              <h4>Для взрослых</h4>
+              <p>Символ зрелости, опыта и внутреннего стержня. Для людей, которым не нужно демонстрировать силу окружающим — их характер уже сформирован годами труда, ответственности и пройденного пути.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">03 /</div>
+          <h2>Создание комьюнити сильных людей</h2>
+          <h3>Братство по духу</h3>
+          <p><strong>Miles</strong> — это не просто бренд, а сообщество людей с общим мировоззрением. Здесь неважно, в какой сфере ты добиваешься результатов: спортсмен, предприниматель, дизайнер, основатель компании или человек, который каждый день работает над собой.</p>
+          <p>Главный критерий принадлежности — характер, дисциплина и отказ останавливаться перед трудностями. Miles формирует среду, основанную на взаимном уважении, поддержке и признании чужого пути. Каждый проходит собственную дистанцию, но никто не обязан проходить её в одиночку.</p>
+          <div class="brand-quote">
+            DIFFERENT PATHS. SAME MINDSET.
+            <span>Разные пути. Один менталитет.</span>
+          </div>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">04 /</div>
+          <h2>Философия красного цвета</h2>
+          <div class="brand-quote">
+            RED IS THE WILL TO GO FURTHER.
+            <span>Красный — воля идти дальше.</span>
+          </div>
+          <p>Красный цвет Miles — визуальное воплощение внутренней энергии человека, который продолжает путь независимо от обстоятельств. Это цвет усилия, характера и решимости, напоминающий о невидимой работе за каждым пройденным километром. Он символизирует не саму победу, а внутреннюю силу, которая позволяет к ней двигаться.</p>
+          <h3>Красный символизирует</h3>
+          <ul class="brand-list">
+            <li><strong>Волю</strong> — решение продолжать, когда проще сдаться.</li>
+            <li><strong>Борьбу</strong> — готовность принимать трудности и преодолевать собственные ограничения.</li>
+            <li><strong>Пульс</strong> — жизненную энергию, движение и постоянное развитие.</li>
+            <li><strong>Характер</strong> — внутренний огонь, который не зависит от внешних обстоятельств.</li>
+            <li><strong>Решимость</strong> — способность идти к своей цели, несмотря на неопределённость.</li>
+            <li><strong>Единство</strong> — общий символ людей, разделяющих одну философию, независимо от их жизненного пути.</li>
+          </ul>
+          <p>Красный в Miles не ассоциируется с агрессией, доминированием или желанием доказать превосходство. Это сила, направленная прежде всего внутрь себя.</p>
+          <div class="brand-quote">
+            NOT AGAINST OTHERS. AGAINST YOUR OWN LIMITS.
+            <span>Не против других. Против собственных ограничений.</span>
+          </div>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">05 /</div>
+          <h2>Визуальный язык, стиль и эстетика</h2>
+          <h3>Визуальная метафора</h3>
+          <p>Центральный элемент визуальной идентичности Miles — <strong>деконструированный силуэт человека в движении</strong>. Разбитый на отдельные формы, фрагменты и геометрические элементы образ символизирует непрерывное формирование личности под влиянием опыта, ошибок, решений и преодолённых препятствий.</p>
+          <p>Каждый фрагмент силуэта отражает отдельный этап пути, а красные элементы в композиции становятся воплощением внутренней энергии, воли и решимости.</p>
+          <h3>Стритвир и спортивная эстетика</h3>
+          <p>Одежда Miles объединяет функциональность спортивной экипировки и свободу уличного стиля:</p>
+          <ul class="brand-list">
+            <li>Технологичные материалы и функциональные конструкции.</li>
+            <li>Свободные и архитектурные силуэты.</li>
+            <li>Деконструкция и нестандартные пропорции.</li>
+            <li>Минималистичная графика и выразительная типографика.</li>
+            <li>Спортивные элементы в сочетании с повседневной одеждой.</li>
+          </ul>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">06 /</div>
+          <h2>Цветовая система Miles</h2>
+          <p>Палитра строится на сочетании четырёх основных цветов, каждый из которых несёт самостоятельную смысловую нагрузку.</p>
+          <div class="palette-grid">
+            <div class="swatch-card">
+              <div class="swatch-color" style="background:#0A0A0A"></div>
+              <div class="swatch-body">
+                <div class="swatch-meta">BLACK — DISCIPLINE • #0A0A0A</div>
+                <div class="swatch-sub">Дисциплина, сила, сдержанность</div>
+                <p>Внутренний стержень, самоконтроль и концентрация на своём пути. Фундамент личности — сила, которая не нуждается в демонстрации.</p>
+              </div>
+            </div>
+            <div class="swatch-card">
+              <div class="swatch-color" style="background:#F1F0EA;border-bottom:1px solid var(--border)"></div>
+              <div class="swatch-body">
+                <div class="swatch-meta">OFF-WHITE — CLARITY • #F1F0EA</div>
+                <div class="swatch-sub">Ясность, свобода, осознанность</div>
+                <p>Чистота намерений, ясность мышления, пространство для новых идей и независимость от навязанных стандартов.</p>
+              </div>
+            </div>
+            <div class="swatch-card">
+              <div class="swatch-color" style="background:#777777"></div>
+              <div class="swatch-body">
+                <div class="swatch-meta">GREY — EXPERIENCE • #777777</div>
+                <div class="swatch-sub">Опыт, выдержка, время</div>
+                <p>Пройденная дистанция и накопленный жизненный опыт: ошибки, сомнения, сложные решения и уроки, формирующие личность.</p>
+              </div>
+            </div>
+            <div class="swatch-card">
+              <div class="swatch-color" style="background:#B82025"></div>
+              <div class="swatch-body">
+                <div class="swatch-meta">RED — WILL • #B82025</div>
+                <div class="swatch-sub">Воля, борьба, внутренняя энергия</div>
+                <p>Внутренний огонь, усилие, решимость и несгибаемый характер. Не финишная черта, а сила, помогающая продолжать путь.</p>
+              </div>
+            </div>
+          </div>
+          <h3>Общий смысл цветовой системы</h3>
+          <ul class="brand-list">
+            <li><strong>Black</strong> — то, что даёт тебе устойчивость.</li>
+            <li><strong>Off-white</strong> — то, что помогает видеть направление.</li>
+            <li><strong>Grey</strong> — то, что формирует тебя на дистанции.</li>
+            <li><strong>Red</strong> — то, что заставляет двигаться дальше.</li>
+          </ul>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">07 /</div>
+          <h2>Принципы использования цветовой палитры</h2>
+          <p>Цветовая система сохраняет визуальную сдержанность и узнаваемость Miles. Основой остаётся монохромная гамма, а красный используется дозированно как стратегический акцент, чтобы сохранять свою эмоциональную силу.</p>
+          <div class="ratio-bar" aria-label="Распределение палитры 60/25/10/5">
+            <div style="width:60%;background:#0A0A0A"></div>
+            <div style="width:25%;background:#F1F0EA"></div>
+            <div style="width:10%;background:#777777"></div>
+            <div style="width:5%;background:#B82025"></div>
+          </div>
+          <div class="ratio-legend">
+            <span>60% Black</span>
+            <span>25% Off-white</span>
+            <span>10% Grey</span>
+            <span>5% Red</span>
+          </div>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">08 /</div>
+          <h2>Красный как символ принадлежности к комьюнити</h2>
+          <div class="brand-quote">
+            THE RED MARK
+            <span>Узнаваемый знак принадлежности к сообществу MILES.</span>
+          </div>
+          <p>Красный знак в деталях одежды и визуальной системе объединяет людей, разделяющих философию пути, дисциплины и внутренней силы.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-delivery">
+    <div class="wrap">
+      <div class="editorial">
+        <div class="ed-kicker">CUSTOMER SERVICE / 01</div>
+        <h1 class="ed-title">Доставка и оплата</h1>
+        <p class="ed-lead">Оплата заказа — 100% предоплата. Итоговая сумма рассчитывается автоматически при оформлении на сайте. Бесплатная доставка при заказе от 15 000 ₽.</p>
+
+        <div class="ed-block">
+          <div class="ed-num">01 /</div>
+          <h2>Срок обработки и отправки</h2>
+          <p>Срок обработки и отправки заказов составляет 3 рабочих дня.</p>
+          <p>В период высокой загрузки срок может быть увеличен до 5 рабочих дней.</p>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">02 /</div>
+          <h2>Отслеживание заказа</h2>
+          <p>Трек-код для отслеживания заказа будет отправлен на вашу электронную почту или номер телефона, указанный при заказе.</p>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">03 /</div>
+          <h2>Помощь с заказом</h2>
+          <p>Если вам нужна помощь с заказом — свяжитесь с нами в Telegram <a class="ed-link" href="https://t.me" target="_blank" rel="noopener">@mileshelp</a>.</p>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">04 /</div>
+          <h2>Россия</h2>
+          <p>Для доставки по России при оформлении заказа выберите способ доставки СДЭК/ЯНДЕКС/КУРЬЕРСКАЯ ДОСТАВКА ПО МОСКВЕ.</p>
+          <p>После оформления вы получите трек-номер и сможете отслеживать заказ в приложении или на сайте выбранной службы доставки.</p>
+        </div>
+
+        <div class="ed-block">
+          <div class="ed-num">05 /</div>
+          <h2>Беларусь и Казахстан</h2>
+          <p>Для оформления доставки в Беларусь и Казахстан и уточнения деталей свяжитесь с нами в Telegram: <a class="ed-link" href="https://t.me" target="_blank" rel="noopener">@mileshelp</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-returns">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">Возврат и обмен</h1>
+        <span class="page-sub">14 дней</span>
+      </div>
+      <div class="prose">
+        <p>Вы можете обменять или вернуть товар надлежащего качества в течение <strong>14 дней</strong> с момента получения заказа.</p>
+        <h3>Условия возврата</h3>
+        <p>Вещь не должна быть в употреблении: сохранены товарный вид, бирки, ярлыки и оригинальная упаковка.</p>
+        <h3>Как оформить</h3>
+        <p>Напишите на <strong>hello@miles.com</strong> или в Telegram <a class="ed-link" href="https://t.me" target="_blank" rel="noopener">@mileshelp</a>, указав номер заказа из вашего профиля и причину возврата. Средства возвращаются на карту в течение 3–7 рабочих дней после получения посылки.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-offer">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">Публичная оферта</h1>
+        <span class="page-sub">Редакция 2026</span>
+      </div>
+      <div class="prose">
+        <p>Настоящий документ является официальным предложением интернет-магазина MILES заключить договор купли-продажи товаров дистанционным способом.</p>
+        <h3>1. Общие положения</h3>
+        <p>Оформляя заказ на сайте MILES, покупатель подтверждает согласие с условиями настоящей оферты, стоимостью товаров и условиями доставки.</p>
+        <h3>2. Оформление и исполнение заказа</h3>
+        <p>Продавец обязуется передать товар надлежащего качества в согласованные сроки, а покупатель — оплатить и принять заказ.</p>
+        <h3>3. Заклютельные положения</h3>
+        <p>По всем вопросам, связанным с исполнением договора, обращайтесь по адресу hello@miles.com.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-privacy">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">Политика конфиденциальности</h1>
+        <span class="page-sub">Защита данных</span>
+      </div>
+      <div class="prose">
+        <p>MILES уважает конфиденциальность персональных данных пользователей и обрабатывает их исключительно для выполнения заказов и улучшения сервиса.</p>
+        <h3>Какие данные мы собираем</h3>
+        <p>Имя, контактный телефон, электронная почта и адрес доставки, указанные при оформлении заказа или заполнении профиля.</p>
+        <h3>Хранение и передача</h3>
+        <p>Данные используются для доставки заказов и уведомлений о статусе. Информация не передаётся третьим лицам, за исключением служб доставки в рамках исполнения вашего заказа.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-gift-cards">
+    <div class="wrap">
+      <div class="gift-wrap">
+        <div class="gift-kicker">MILES / THE DISTANCE DEFINES YOU.</div>
+        <h1 class="gift-heading">GIFT CARDS</h1>
+
+        <div class="gift-layout">
+          <div class="gift-stage">
+            <div class="gift-card-visual">
+              <div class="gift-card-top">
+                <img src="data:image/png;base64,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" alt="MILES">
+                <span>DIGITAL GIFT CARD</span>
+              </div>
+              <div class="gift-card-mid">THE DISTANCE<br>DEFINES YOU.</div>
+              <div class="gift-card-bottom">
+                <span>Свой путь. Свои правила.</span>
+                <strong id="giftCardAmountView">1 000 ₽</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="gift-panel">
+            <h2>Подари выбор.</h2>
+            <p class="gift-desc">Размер, цвет, любимая вещь — пусть решают сами. А ты подари им MILES.</p>
+
+            <div class="gift-nom-label">Выбери номинал</div>
+            <div class="gift-nominals" id="giftOptions">
+              <button class="gift-nom-btn is-active" type="button" data-amount="1000">1 000 ₽</button>
+              <button class="gift-nom-btn" type="button" data-amount="3000">3 000 ₽</button>
+              <button class="gift-nom-btn" type="button" data-amount="5000">5 000 ₽</button>
+              <button class="gift-nom-btn" type="button" data-amount="10000">10 000 ₽</button>
+              <button class="gift-nom-btn" type="button" data-amount="15000">15 000 ₽</button>
+            </div>
+
+            <button class="gift-buy-btn" id="addGiftBtn" type="button">
+              <span>Купить сертификат</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+
+            <p class="gift-note">Электронный сертификат. Без физической доставки.<br>После оплаты оформим его вручную и отправим на почту из заказа.</p>
+          </div>
+        </div>
+
+        <div class="gift-steps">
+          <div class="gift-step">
+            <h3>01 / Выбери сумму</h3>
+            <p>Пять номиналов — от 1 000 до 15 000 ₽. Сертификат можно подарить или оставить себе.</p>
+          </div>
+          <div class="gift-step">
+            <h3>02 / Получи на почту</h3>
+            <p>При оформлении выбери «Без доставки — электронный сертификат». Перешли полученную карту тому, кого хочешь порадовать.</p>
+          </div>
+          <div class="gift-step">
+            <h3>03 / Забери свои вещи</h3>
+            <p>Для использования сертификата напиши <a class="ed-link" href="https://t.me" target="_blank" rel="noopener">@mileshelp</a> и пришли его номер. Поможем оформить заказ с учётом номинала.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-profile">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">Профиль</h1>
+        <span class="page-sub" id="profileStatusLabel">Личный кабинет</span>
+      </div>
+      <div class="profile-layout">
+        <div class="panel-box" id="profileFormWrap">
+          <h3 id="profileBoxTitle">Данные аккаунта</h3>
+          <form id="profileForm">
+            <div class="field">
+              <label for="pfName">Имя</label>
+              <input id="pfName" type="text" placeholder="Алексей" required>
+            </div>
+            <div class="field">
+              <label for="pfEmail">Email</label>
+              <input id="pfEmail" type="email" placeholder="alex@miles.com" required>
+            </div>
+            <div class="field">
+              <label for="pfPhone">Телефон</label>
+              <input id="pfPhone" type="tel" placeholder="+7 (999) 000-00-00">
+            </div>
+            <div class="field">
+              <label for="pfAddress">Адрес доставки</label>
+              <input id="pfAddress" type="text" placeholder="г. Москва, ул. Примерная, 1">
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+              <button class="btn" type="submit">Сохранить профиль</button>
+              <button class="btn btn-outline" id="logoutBtn" type="button" style="display:none">Выйти</button>
+            </div>
+            <p class="status-msg" id="profileMsg"></p>
+          </form>
+        </div>
+        <div class="panel-box">
+          <h3>Мои заказы</h3>
+          <div id="ordersList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-cart">
+    <div class="wrap">
+      <div class="page-head">
+        <h1 class="page-title">Корзина</h1>
+        <span class="page-sub" id="cartCountLabel">0 товаров</span>
+      </div>
+      <div id="cartContent"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="data:image/png;base64,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" alt="MILES">
+        <p class="footer-tagline">THE DISTANCE DEFINES YOU.</p>
+        <p class="footer-legal">MILES CLOTHING<br>HELLO@MILES.COM</p>
+      </div>
+      <div class="footer-col">
+        <h3>Навигация</h3>
+        <ul>
+          <li><a href="#home" data-route="home">Главная</a></li>
+          <li><a href="#catalog" data-route="catalog">Каталог</a></li>
+          <li><a href="#about" data-route="about">О бренде</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Покупателям</h3>
+        <ul>
+          <li><a href="#delivery" data-route="delivery">Доставка и оплата</a></li>
+          <li><a href="#returns" data-route="returns">Возврат и обмен</a></li>
+          <li><a href="#offer" data-route="offer">Публичная оферта</a></li>
+          <li><a href="#privacy" data-route="privacy">Политика конфиденциальности</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Соцсети</h3>
+        <div class="footer-social-boxes">
+          <a href="https://instagram.com" target="_blank" rel="noopener">IG*</a>
+          <a href="https://t.me" target="_blank" rel="noopener">TG</a>
+          <a href="https://tiktok.com" target="_blank" rel="noopener">TT</a>
+        </div>
+        <p class="footer-meta-note">*Деятельность Meta Platforms Inc. запрещена на территории Российской Федерации</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© MILES 2026</span>
+      <span>DROP 001 / COLLECTION 04 / 24</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const LOGO_SRC="data:image/png;base64,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";
+
+const PRODUCTS=[
+  {
+    id:'hoodie-core',
+    name:'Худи Core',
+    price:8900,
+    cat:'hoodie',
+    tag:'New',
+    sizes:['S','M','L','XL'],
+    desc:'Плотное худи свободного архитектурного кроя из органического хлопка 460 г/м². Минимум швов, двойной капюшон и фирменный красный акцент MILES.',
+    material:'100% органический хлопок, 460 г/м²',
+    fit:'Свободный крой (Relaxed fit)'
+  },
+  {
+    id:'tee-basic',
+    name:'Футболка Basic',
+    price:3900,
+    cat:'tee',
+    tag:'',
+    sizes:['S','M','L','XL'],
+    desc:'Базовая футболка с уплотнённым воротом и спущенной линией плеча. Выдерживает интенсивные тренировки и ежедневную носку.',
+    material:'100% хлопок пенье, 280 г/м²',
+    fit:'Свободный крой (Boxy fit)'
+  },
+  {
+    id:'pants-straight',
+    name:'Брюки Straight',
+    price:7400,
+    cat:'pants',
+    tag:'New',
+    sizes:['S','M','L','XL'],
+    desc:'Прямые брюки с технологичной посадкой, эластичным поясом и скрытыми карманами на молнии. Созданы для движения в городе и на дистанции.',
+    material:'92% нейлон, 8% эластан (влагостойкая пропитка)',
+    fit:'Прямой крой (Straight fit)'
+  },
+  {
+    id:'jacket-light',
+    name:'Куртка Light',
+    price:12900,
+    cat:'outerwear',
+    tag:'',
+    sizes:['S','M','L','XL'],
+    desc:'Лёгкая ветро- и влагозащитная куртка с анатомическим рукавом и деконструированными линиями кроя. Защита от ветра без лишнего веса.',
+    material:'3-слойная мембранная ткань',
+    fit:'Свободный крой (Architectural fit)'
+  }
+];
+
+const ROUTES=['home','catalog','product','about','delivery','returns','offer','privacy','gift-cards','profile','cart'];
+
+function escHtml(str){
+  return String(str||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* Безопасное хранилище (не падает в file:// и приватных WebView) */
+const memStore={};
+function storeGet(key,fallback){
+  try{
+    const val=window.localStorage.getItem(key);
+    return val!==null?val:fallback;
+  }catch(_){
+    return Object.prototype.hasOwnProperty.call(memStore,key)?memStore[key]:fallback;
+  }
+}
+function storeSet(key,val){
+  memStore[key]=val;
+  try{window.localStorage.setItem(key,val);}catch(_){}
+}
+function storeRemove(key){
+  delete memStore[key];
+  try{window.localStorage.removeItem(key);}catch(_){}
+}
+function storeGetJSON(key,fallback){
+  try{
+    const raw=storeGet(key,null);
+    return raw?JSON.parse(raw):fallback;
+  }catch(_){
+    return fallback;
+  }
+}
+
+/* Спортивная анимация на главной (работает на любом устройстве без ограничений автоплея видео) */
+try{
+  (function initSportCanvas(){
+    const canvas=document.getElementById('sportCanvas');
+    if(!canvas||!canvas.getContext)return;
+    const ctx=canvas.getContext('2d');
+    if(!ctx)return;
+    let t=0;
+    let w=480,h=480;
+    let rafId=null;
+    const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function resize(){
+      const rect=canvas.parentElement.getBoundingClientRect();
+      const dpr=Math.min(window.devicePixelRatio||1,2);
+      w=Math.max(320,Math.floor(rect.width||window.innerWidth));
+      h=Math.max(360,Math.floor(rect.height||window.innerHeight));
+      canvas.width=Math.floor(w*dpr);
+      canvas.height=Math.floor(h*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+    window.addEventListener('resize',function(){resize();draw();});
+
+    function drawRunner(x,y,scale,phase){
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.scale(scale,scale);
+
+      const stride=Math.sin(phase);
+      const bounce=Math.abs(Math.cos(phase))*8;
+      ctx.translate(0,-bounce);
+
+      ctx.lineCap='square';
+      ctx.lineJoin='miter';
+
+      ctx.strokeStyle='rgba(255,255,255,0.42)';
+      ctx.lineWidth=14;
+      ctx.beginPath();
+      ctx.moveTo(-6,18);
+      ctx.lineTo(-6-stride*36,58+stride*10);
+      ctx.lineTo(-22-stride*48,104);
+      ctx.stroke();
+
+      ctx.strokeStyle='#ffffff';
+      ctx.lineWidth=15;
+      ctx.beginPath();
+      ctx.moveTo(4,18);
+      ctx.lineTo(14+stride*38,58-stride*8);
+      ctx.lineTo(4+stride*52,106);
+      ctx.stroke();
+
+      ctx.strokeStyle='#ffffff';
+      ctx.lineWidth=22;
+      ctx.beginPath();
+      ctx.moveTo(-2,20);
+      ctx.lineTo(14,-34);
+      ctx.stroke();
+
+      ctx.strokeStyle='#fb1818';
+      ctx.lineWidth=8;
+      ctx.beginPath();
+      ctx.moveTo(2,8);
+      ctx.lineTo(14,-28);
+      ctx.stroke();
+
+      ctx.fillStyle='#ffffff';
+      ctx.beginPath();
+      ctx.arc(22,-54,13,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.strokeStyle='rgba(255,255,255,0.75)';
+      ctx.lineWidth=11;
+      ctx.beginPath();
+      ctx.moveTo(12,-28);
+      ctx.lineTo(12-stride*32,-2);
+      ctx.lineTo(28-stride*38,14);
+      ctx.stroke();
+
+      ctx.strokeStyle='#fb1818';
+      ctx.lineWidth=11;
+      ctx.beginPath();
+      ctx.moveTo(12,-28);
+      ctx.lineTo(22+stride*34,-4);
+      ctx.lineTo(42+stride*36,-18);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function draw(){
+      ctx.fillStyle='#0a0a0a';
+      ctx.fillRect(0,0,w,h);
+
+      const grad=ctx.createRadialGradient(w*0.5,h*0.48,20,w*0.5,h*0.48,Math.max(w,h)*0.55);
+      grad.addColorStop(0,'rgba(251,24,24,0.22)');
+      grad.addColorStop(0.55,'rgba(184,32,37,0.08)');
+      grad.addColorStop(1,'rgba(10,10,10,0)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,0,w,h);
+
+      const horizon=h*0.58;
+      ctx.strokeStyle='rgba(255,255,255,0.12)';
+      ctx.lineWidth=1;
+      for(let i=-5;i<=5;i++){
+        ctx.beginPath();
+        ctx.moveTo(w*0.5+i*32,horizon);
+        ctx.lineTo(w*0.5+i*200,h);
+        ctx.stroke();
+      }
+
+      for(let i=0;i<16;i++){
+        const progress=((t*0.85+i*0.18)%1);
+        const y=horizon+Math.pow(progress,2)*(h-horizon);
+        const speedX=((t*240+i*190)%(w+300))-150;
+        ctx.strokeStyle=i%4===0?'rgba(251,24,24,0.65)':'rgba(255,255,255,0.18)';
+        ctx.lineWidth=i%4===0?2:1;
+        ctx.beginPath();
+        ctx.moveTo(w-speedX,y);
+        ctx.lineTo(w-speedX+110+progress*120,y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle='rgba(251,24,24,0.5)';
+      ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(0,horizon);
+      ctx.lineTo(w,horizon);
+      ctx.stroke();
+
+      const runnerScale=Math.max(0.75,Math.min(w,h)/400);
+      drawRunner(w*0.5,h*0.52,runnerScale,t*7.2);
+
+      for(let k=1;k<=6;k++){
+        ctx.fillStyle='rgba(251,24,24,'+(0.18/k)+')';
+        ctx.fillRect(w*0.5-k*48-Math.sin(t*7.2)*12,h*0.48+(k%2)*14,30,3);
+      }
+    }
+
+    function frame(){
+      draw();
+      t+=0.016;
+      if(!reduceMotion&&!document.hidden){
+        rafId=requestAnimationFrame(frame);
+      }else{
+        rafId=null;
+      }
+    }
+
+    document.addEventListener('visibilitychange',function(){
+      if(!document.hidden&&!reduceMotion&&!rafId)frame();
+    });
+
+    frame();
+  })();
+}catch(_){}
+
+/* Тема */
+const root=document.documentElement;
+const savedTheme=storeGet('miles-theme',null);
+if(savedTheme==='light'||savedTheme==='dark')root.setAttribute('data-theme',savedTheme);
+
+document.getElementById('themeToggle').addEventListener('click',function(){
+  const prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const isDark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&prefersDark);
+  const next=isDark?'light':'dark';
+  root.setAttribute('data-theme',next);
+  storeSet('miles-theme',next);
+});
+
+/* Меню слева */
+const drawer=document.getElementById('drawer');
+const backdrop=document.getElementById('drawerBackdrop');
+const openBtn=document.getElementById('menuOpen');
+const closeBtn=document.getElementById('menuClose');
+
+function toggleMenu(open){
+  drawer.classList.toggle('is-open',open);
+  backdrop.classList.toggle('is-open',open);
+  document.body.classList.toggle('menu-open',open);
+  drawer.setAttribute('aria-hidden',String(!open));
+  openBtn.setAttribute('aria-expanded',String(open));
+}
+openBtn.addEventListener('click',function(){toggleMenu(true);});
+closeBtn.addEventListener('click',function(){toggleMenu(false);});
+backdrop.addEventListener('click',function(){toggleMenu(false);});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&drawer.classList.contains('is-open'))toggleMenu(false);
+});
+
+/* Тост */
+let toastTimer;
+function showToast(text){
+  const el=document.getElementById('toast');
+  el.textContent=text;
+  el.classList.add('is-show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){el.classList.remove('is-show');},2200);
+}
+
+/* Формат цены */
+function fmtPrice(n){
+  try{return Number(n).toLocaleString('ru-RU')+' ₽';}
+  catch(_){return String(n)+' ₽';}
+}
+
+/* Состояние корзины и профиля */
+let cart=storeGetJSON('miles-cart',[]);
+let profile=storeGetJSON('miles-profile',null);
+let orders=storeGetJSON('miles-orders',[]);
+let activeProductId=PRODUCTS[0].id;
+let currentRoute='home';
+
+function saveCart(){
+  storeSet('miles-cart',JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function updateCartBadge(){
+  const count=cart.reduce(function(s,item){return s+item.qty;},0);
+  const badge=document.getElementById('cartBadge');
+  badge.textContent=String(count);
+  badge.classList.toggle('is-visible',count>0);
+}
+
+function addToCart(item){
+  const existing=cart.find(function(c){return c.id===item.id&&c.size===item.size;});
+  if(existing){existing.qty+=1;}
+  else{cart.push(Object.assign({},item,{qty:1}));}
+  saveCart();
+  showToast('Добавлено: '+item.name+' ('+item.size+')');
+  if(currentRoute==='cart')renderCart();
+}
+
+/* Открытие вкладки/страницы товара при клике на вещь */
+function openProduct(productId){
+  const prod=PRODUCTS.find(function(p){return p.id===productId;})||PRODUCTS[0];
+  activeProductId=prod.id;
+  renderProductDetail(prod);
+  navigate('product',true,'product-'+prod.id);
+}
+
+function renderProductDetail(prod){
+  const wrap=document.getElementById('productDetailWrap');
+  let selectedSize='M';
+  wrap.innerHTML=
+    '<button class="back-link" type="button" id="backToCatalog">← Назад в каталог</button>'+
+    '<div class="product-layout">'+
+      '<div class="product-media">'+
+        (prod.tag?'<span class="tag">'+escHtml(prod.tag)+'</span>':'')+
+        '<img src="'+LOGO_SRC+'" alt="'+escHtml(prod.name)+'">'+
+      '</div>'+
+      '<div class="product-info">'+
+        '<div class="product-kicker">MILES • DROP 001</div>'+
+        '<h1 class="product-title">'+escHtml(prod.name)+'</h1>'+
+        '<div class="product-price">'+fmtPrice(prod.price)+'</div>'+
+        '<p class="product-desc">'+escHtml(prod.desc)+'</p>'+
+        '<div>'+
+          '<div class="product-label">Выберите размер</div>'+
+          '<div class="product-sizes" id="detailSizes">'+
+            prod.sizes.map(function(s){
+              return '<button type="button" class="product-size-btn'+(s===selectedSize?' is-selected':'')+'" data-size="'+escHtml(s)+'">'+escHtml(s)+'</button>';
+            }).join('')+
+          '</div>'+
+        '</div>'+
+        '<div>'+
+          '<button type="button" class="btn" id="detailAddBtn" style="width:100%">Добавить в корзину</button>'+
+        '</div>'+
+        '<div class="product-specs">'+
+          '<span><strong>Материал:</strong> '+escHtml(prod.material)+'</span>'+
+          '<span><strong>Посадка:</strong> '+escHtml(prod.fit)+'</span>'+
+          '<span><strong>Доставка:</strong> Бесплатно от 15 000 ₽ • Возврат 14 дней</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  document.getElementById('backToCatalog').addEventListener('click',function(){navigate('catalog');});
+  wrap.querySelectorAll('.product-size-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      wrap.querySelectorAll('.product-size-btn').forEach(function(b){b.classList.remove('is-selected');});
+      btn.classList.add('is-selected');
+      selectedSize=btn.dataset.size;
+    });
+  });
+  document.getElementById('detailAddBtn').addEventListener('click',function(){
+    addToCart({id:prod.id,name:prod.name,price:prod.price,size:selectedSize});
+  });
+}
+
+/* Рендер каталога одежды */
+function renderProductGrid(containerId,category){
+  if(!category)category='all';
+  const wrap=document.getElementById(containerId);
+  const items=category==='all'?PRODUCTS:PRODUCTS.filter(function(p){return p.cat===category;});
+  wrap.innerHTML=items.map(function(p){
+    return '<article class="card" data-id="'+escHtml(p.id)+'" tabindex="0" role="button" aria-label="Открыть '+escHtml(p.name)+'">'+
+      '<div class="img">'+
+        (p.tag?'<span class="tag">'+escHtml(p.tag)+'</span>':'')+
+        '<img src="'+LOGO_SRC+'" alt="'+escHtml(p.name)+'">'+
+        '<div class="sizes" aria-label="Выбор размера">'+
+          p.sizes.map(function(s,idx){
+            return '<button type="button" class="size-chip'+(idx===1?' is-selected':'')+'" data-size="'+escHtml(s)+'">'+escHtml(s)+'</button>';
+          }).join('')+
+        '</div>'+
+      '</div>'+
+      '<div class="row"><span>'+escHtml(p.name)+'</span><span>'+fmtPrice(p.price)+'</span></div>'+
+      '<button type="button" class="add-btn">В корзину</button>'+
+    '</article>';
+  }).join('');
+
+  wrap.querySelectorAll('.card').forEach(function(card){
+    const prod=PRODUCTS.find(function(p){return p.id===card.dataset.id;});
+
+    card.addEventListener('click',function(e){
+      if(e.target&&typeof e.target.closest==='function'){
+        if(e.target.closest('.size-chip')||e.target.closest('.add-btn'))return;
+      }
+      openProduct(prod.id);
+    });
+    card.addEventListener('keydown',function(e){
+      if((e.key==='Enter'||e.key===' ')&&e.target===card){
+        e.preventDefault();
+        openProduct(prod.id);
+      }
+    });
+
+    card.querySelectorAll('.size-chip').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        card.querySelectorAll('.size-chip').forEach(function(b){b.classList.remove('is-selected');});
+        btn.classList.add('is-selected');
+      });
+    });
+
+    const addBtn=card.querySelector('.add-btn');
+    addBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      const sel=card.querySelector('.size-chip.is-selected');
+      const size=sel?sel.dataset.size:'M';
+      addToCart({id:prod.id,name:prod.name,price:prod.price,size:size});
+      addBtn.classList.add('added');
+      addBtn.textContent='В корзине';
+      setTimeout(function(){addBtn.classList.remove('added');addBtn.textContent='В корзину';},900);
+    });
+  });
+}
+
+renderProductGrid('catalogGrid','all');
+
+/* Фильтры каталога */
+document.getElementById('catalogFilters').addEventListener('click',function(e){
+  const btn=e.target&&typeof e.target.closest==='function'?e.target.closest('.filter-btn'):null;
+  if(!btn)return;
+  document.querySelectorAll('#catalogFilters .filter-btn').forEach(function(b){b.classList.remove('is-active');});
+  btn.classList.add('is-active');
+  renderProductGrid('catalogGrid',btn.dataset.cat);
+});
+
+/* Gift Cards */
+let selectedGift=1000;
+const giftCardAmountView=document.getElementById('giftCardAmountView');
+document.getElementById('giftOptions').addEventListener('click',function(e){
+  const opt=e.target&&typeof e.target.closest==='function'?e.target.closest('.gift-nom-btn'):null;
+  if(!opt)return;
+  document.querySelectorAll('#giftOptions .gift-nom-btn').forEach(function(o){o.classList.remove('is-active');});
+  opt.classList.add('is-active');
+  selectedGift=Number(opt.dataset.amount);
+  giftCardAmountView.textContent=fmtPrice(selectedGift);
+});
+document.getElementById('addGiftBtn').addEventListener('click',function(){
+  addToCart({id:'gift-'+selectedGift,name:'Gift Card MILES',price:selectedGift,size:fmtPrice(selectedGift),isDigital:true});
+});
+
+/* Профиль */
+const pfName=document.getElementById('pfName');
+const pfEmail=document.getElementById('pfEmail');
+const pfPhone=document.getElementById('pfPhone');
+const pfAddress=document.getElementById('pfAddress');
+const logoutBtn=document.getElementById('logoutBtn');
+const profileMsg=document.getElementById('profileMsg');
+const profileStatusLabel=document.getElementById('profileStatusLabel');
+
+function renderProfile(){
+  if(profile){
+    pfName.value=profile.name||'';
+    pfEmail.value=profile.email||'';
+    pfPhone.value=profile.phone||'';
+    pfAddress.value=profile.address||'';
+    logoutBtn.style.display='inline-flex';
+    profileStatusLabel.textContent=profile.name||profile.email;
+  }else{
+    pfName.value='';pfEmail.value='';pfPhone.value='';pfAddress.value='';
+    logoutBtn.style.display='none';
+    profileStatusLabel.textContent='Гость';
+  }
+  const ordersList=document.getElementById('ordersList');
+  if(!orders.length){
+    ordersList.innerHTML='<p style="color:var(--mute);font-size:14px">У вас пока нет оформленных заказов.</p>';
+  }else{
+    ordersList.innerHTML=orders.map(function(o){
+      return '<div class="order-item">'+
+        '<div class="order-head"><span>Заказ #'+escHtml(o.id)+'</span><span>'+fmtPrice(o.total)+'</span></div>'+
+        '<div class="order-meta">'+escHtml(o.date)+' • '+escHtml(o.status)+'</div>'+
+        '<div class="order-lines">'+o.items.map(function(i){return escHtml(i.name)+' ('+escHtml(i.size)+') × '+i.qty;}).join(', ')+'</div>'+
+      '</div>';
+    }).join('');
+  }
+}
+
+document.getElementById('profileForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  profile={
+    name:pfName.value.trim(),
+    email:pfEmail.value.trim(),
+    phone:pfPhone.value.trim(),
+    address:pfAddress.value.trim()
+  };
+  storeSet('miles-profile',JSON.stringify(profile));
+  renderProfile();
+  profileMsg.textContent='Данные профиля сохранены.';
+  setTimeout(function(){profileMsg.textContent='';},2500);
+});
+
+logoutBtn.addEventListener('click',function(){
+  profile=null;
+  storeRemove('miles-profile');
+  renderProfile();
+  profileMsg.textContent='Вы вышли из аккаунта.';
+  setTimeout(function(){profileMsg.textContent='';},2500);
+});
+
+/* Корзина */
+function renderCart(){
+  const totalQty=cart.reduce(function(s,i){return s+i.qty;},0);
+  document.getElementById('cartCountLabel').textContent=totalQty+' '+(totalQty===1?'товар':totalQty>1&&totalQty<5?'товара':'товаров');
+  const container=document.getElementById('cartContent');
+  if(!cart.length){
+    container.innerHTML=
+      '<div class="empty-state">'+
+        '<p>В вашей корзине пока пусто.</p>'+
+        '<a class="btn" href="#catalog" data-route="catalog">Перейти в каталог</a>'+
+      '</div>';
+    return;
+  }
+  const subtotal=cart.reduce(function(s,i){return s+i.price*i.qty;},0);
+  const onlyDigital=cart.every(function(i){return i.isDigital||String(i.id).indexOf('gift-')===0;});
+  const freeThreshold=15000;
+  const delivery=onlyDigital||subtotal>=freeThreshold?0:490;
+  const total=subtotal+delivery;
+  const leftForFree=Math.max(0,freeThreshold-subtotal);
+  const profName=profile&&profile.name?profile.name:'';
+  const profEmail=profile&&profile.email?profile.email:'';
+  const profAddr=profile&&profile.address?profile.address:'';
+
+  container.innerHTML=
+    '<div class="cart-layout">'+
+      '<div class="cart-list">'+
+        cart.map(function(item,idx){
+          return '<div class="cart-row" data-idx="'+idx+'">'+
+            '<div class="cart-thumb">MILES</div>'+
+            '<div class="cart-info">'+
+              '<h4>'+escHtml(item.name)+'</h4>'+
+              '<p>'+(item.isDigital?'Номинал':'Размер')+': '+escHtml(item.size)+' • '+fmtPrice(item.price)+'</p>'+
+            '</div>'+
+            '<div class="cart-controls">'+
+              '<div class="qty-box">'+
+                '<button type="button" class="qty-dec" aria-label="Уменьшить">−</button>'+
+                '<span>'+item.qty+'</span>'+
+                '<button type="button" class="qty-inc" aria-label="Увеличить">+</button>'+
+              '</div>'+
+              '<button type="button" class="remove-btn">Удалить</button>'+
+            '</div>'+
+          '</div>';
+        }).join('')+
+      '</div>'+
+      '<div class="cart-summary">'+
+        '<div class="free-shipping-bar">'+
+          (onlyDigital
+            ?'Без доставки — электронный сертификат (отправка на почту)'
+            :(leftForFree===0
+              ?'Бесплатная доставка активирована'
+              :'До бесплатной доставки осталось '+fmtPrice(leftForFree)))+
+        '</div>'+
+        '<div class="summary-row"><span>Товары</span><span>'+fmtPrice(subtotal)+'</span></div>'+
+        '<div class="summary-row"><span>Доставка</span><span>'+(delivery===0?'Бесплатно':fmtPrice(delivery))+'</span></div>'+
+        '<div class="summary-row total"><span>Итого</span><span>'+fmtPrice(total)+'</span></div>'+
+        '<form id="checkoutForm">'+
+          '<div class="field">'+
+            '<label for="coName">Получатель</label>'+
+            '<input id="coName" type="text" value="'+escHtml(profName)+'" placeholder="Имя и фамилия" required>'+
+          '</div>'+
+          '<div class="field">'+
+            '<label for="coAddress">'+(onlyDigital?'Email для получения сертификата':'Адрес доставки')+'</label>'+
+            '<input id="coAddress" type="text" value="'+escHtml(onlyDigital?profEmail:profAddr)+'" placeholder="'+(onlyDigital?'alex@miles.com':'Город, улица, дом')+'" required>'+
+          '</div>'+
+          '<button class="btn" type="submit" style="width:100%">Оформить заказ</button>'+
+        '</form>'+
+      '</div>'+
+    '</div>';
+
+  container.querySelectorAll('.cart-row').forEach(function(row){
+    const idx=Number(row.dataset.idx);
+    row.querySelector('.qty-inc').addEventListener('click',function(){
+      cart[idx].qty+=1;saveCart();renderCart();
+    });
+    row.querySelector('.qty-dec').addEventListener('click',function(){
+      if(cart[idx].qty>1){cart[idx].qty-=1;}else{cart.splice(idx,1);}
+      saveCart();renderCart();
+    });
+    row.querySelector('.remove-btn').addEventListener('click',function(){
+      cart.splice(idx,1);saveCart();renderCart();
+    });
+  });
+
+  document.getElementById('checkoutForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    const order={
+      id:String(Math.floor(100000+Math.random()*900000)),
+      date:new Date().toLocaleDateString('ru-RU'),
+      status:'Оформлен',
+      total:total,
+      items:cart.map(function(i){return Object.assign({},i);})
+    };
+    orders.unshift(order);
+    storeSet('miles-orders',JSON.stringify(orders));
+    const nameVal=document.getElementById('coName').value.trim();
+    const addrVal=document.getElementById('coAddress').value.trim();
+    if(!profile){
+      profile={name:nameVal,email:onlyDigital?addrVal:'',phone:'',address:onlyDigital?'':addrVal};
+    }else{
+      if(nameVal)profile.name=nameVal;
+      if(addrVal){
+        if(onlyDigital)profile.email=addrVal;
+        else profile.address=addrVal;
+      }
+    }
+    storeSet('miles-profile',JSON.stringify(profile));
+    cart=[];
+    saveCart();
+    showToast('Заказ #'+order.id+' оформлен');
+    navigate('profile');
+  });
+}
+
+/* Навигация между страницами */
+function navigate(route,pushHash,customHash){
+  if(pushHash===undefined)pushHash=true;
+  if(customHash===undefined)customHash=null;
+  const target=ROUTES.indexOf(route)!==-1?route:'home';
+  currentRoute=target;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('is-active');});
+  const pageEl=document.getElementById('page-'+target);
+  if(pageEl)pageEl.classList.add('is-active');
+
+  document.querySelectorAll('#drawerNav a').forEach(function(a){
+    a.classList.toggle('is-active',a.dataset.route===target||(target==='product'&&a.dataset.route==='catalog'));
+  });
+
+  if(target==='profile')renderProfile();
+  if(target==='cart')renderCart();
+  if(target==='product'&&!document.getElementById('productDetailWrap').innerHTML){
+    renderProductDetail(PRODUCTS.find(function(p){return p.id===activeProductId;})||PRODUCTS[0]);
+  }
+
+  const nextHash='#'+(customHash||target);
+  if(pushHash&&location.hash!==nextHash){
+    try{history.pushState(null,'',nextHash);}
+    catch(_){try{location.hash=nextHash;}catch(__){}}
+  }
+  toggleMenu(false);
+  try{window.scrollTo(0,0);}catch(_){}
+}
+
+document.addEventListener('click',function(e){
+  const el=e.target;
+  const link=el&&typeof el.closest==='function'?el.closest('[data-route]'):null;
+  if(!link)return;
+  e.preventDefault();
+  navigate(link.dataset.route);
+});
+
+function resolveHash(){
+  const raw=(location.hash||'').replace('#','');
+  if(raw.indexOf('product-')===0){
+    const prodId=raw.slice('product-'.length);
+    const prod=PRODUCTS.find(function(p){return p.id===prodId;});
+    if(prod){
+      activeProductId=prod.id;
+      renderProductDetail(prod);
+      navigate('product',false,raw);
+      return;
+    }
+  }
+  navigate(ROUTES.indexOf(raw)!==-1?raw:'home',false);
+}
+
+window.addEventListener('hashchange',resolveHash);
+
+/* Инициализация */
+updateCartBadge();
+resolveHash();
+</script>
+</body>
+</html>
